@@ -1,0 +1,37 @@
+name: deploy dev
+
+on: 
+  push:
+    branches: [ main ]
+
+jobs: 
+  deploy:
+    concurrency: dev-environment
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: write
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with: 
+          node-version: '16'
+      
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@master
+        with: 
+          aws-region: us-east-1
+          role-to-assume: arn:aws:iam::993755300009:role/GitHubActions-bredman
+          role-session-name: GithubActionsSession
+      
+      - name: npm ci
+        run: npm ci
+
+      - name: run integration test
+        run: npm run test:integration
+
+      - name: deploy to dev
+        run: npx sls deploy
+
+      - name: run acceptance tests
+        run: npm run test:acceptance
