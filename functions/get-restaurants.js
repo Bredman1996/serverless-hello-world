@@ -1,8 +1,11 @@
 const docClient = require("aws-sdk/clients/dynamodb").DocumentClient;
 const dynamoDb = new docClient();
+const middy = require("@middy/core");
+const ssm = require("@middy/ssm");
 
-const defaultResults = process.env.defaultResults || 8;
+const { serviceName, stage } = process.env;
 const tableName = process.env.restaurants_table;
+
 
 const getRestaurants = async (count) => {
     const req = {
@@ -14,11 +17,18 @@ const getRestaurants = async (count) => {
     return resp.Items;
 }
 
-module.exports.handler = async (event, context) => {
-    const restaurants = await getRestaurants(defaultResults);
+module.exports.handler = middy(async (event, context) => {
+    const restaurants = await getRestaurants(context.config.defaultResults);
     const response = {
         statusCode: 200,
         body: JSON.stringify(restaurants)
     };
     return response;
-};
+}).use(ssm({
+    cache: true,
+    cacheExpiry: 1 * 60 * 1000,
+    setToContext: true,
+    fetchData:{
+        config: `/${serviceName}/${stage}/get-restaurants/config`
+    }
+}));
