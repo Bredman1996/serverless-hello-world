@@ -1,5 +1,4 @@
 const AWS = require('aws-sdk');
-const { random } = require('lodash');
 const chance = require('chance').Chance();
 
 const random_password = () => `${chance.string({ length: 8})}B!gM0uth`;
@@ -30,7 +29,6 @@ const an_authenticated_user = async () => {
     };
     await cognito.adminCreateUser(createReq).promise();
 
-    console.log(`[${username}] - user is created`);
     const req = {
         AuthFlow : 'ADMIN_NO_SRP_AUTH',
         UserPoolId : userPoolId,
@@ -43,7 +41,6 @@ const an_authenticated_user = async () => {
 
     const resp = await cognito.adminInitiateAuth(req).promise();
 
-    console.log(`[${username}] - initialized auth flow`);
     const challengeReq = {
         UserPoolId : userPoolId,
         ClientId : clientId,
@@ -56,7 +53,6 @@ const an_authenticated_user = async () => {
     };
     const challengeResp = await cognito.adminRespondToAuthChallenge(challengeReq).promise();
 
-    console.log(`[${username}] - responded to auth challenge`);
 
     return {
         username,

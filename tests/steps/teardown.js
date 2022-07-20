@@ -9,7 +9,6 @@ const an_authenticated_user = async (user) => {
   }
   await cognito.adminDeleteUser(req).promise()
   
-  console.log(`[${user.username}] - user deleted`)
 }
 
 module.exports = {

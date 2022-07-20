@@ -13,7 +13,7 @@ const viaHandler = async (event, functionName)=> {
 
     const response = await handler(event, context);
     const contentType = _.get(response, 'headers.content-type', 'application/json');
-    if(response.body && contentType == 'application/json'){
+    if(_.get(response, 'body') && contentType == 'application/json'){
         response.body = JSON.parse(response.body);
     }
     return response;
@@ -38,7 +38,6 @@ const signHttpRequest = (url) => {
 
 const viaHttp = async (relPath, method, opts) => {
     const url = `${process.env.rest_api_url}/${relPath}`;
-    console.log(`invoke via HTTP ${method} ${url}`);
     try{
         const data = _.get(opts, "body");
         let headers = {};
@@ -93,8 +92,24 @@ const we_invoke_search_restaurants = async (theme, user) => {
     return await invoke({ body }, 'search-restaurants', 'restaurants/search', 'POST', { body, auth });
 }
 
+const we_invoke_place_order = async (user, restaurantName) => {
+    const body = JSON.stringify({ restaurantName });
+    const auth = user.idToken;
+
+    return await invoke({body}, 'place-order', 'orders', 'POST', { body, auth });
+};
+
+const we_invoke_notify_restaurant = async (event) => {
+    if(mode === 'handler'){
+        return await viaHandler(event, 'notify-restaurant');
+    }
+    throw new Error('not supported');
+}
+
 module.exports = {
     we_invoke_get_index,
     we_invoke_get_restaurants,
-    we_invoke_search_restaurants
+    we_invoke_search_restaurants,
+    we_invoke_place_order,
+    we_invoke_notify_restaurant
 };
