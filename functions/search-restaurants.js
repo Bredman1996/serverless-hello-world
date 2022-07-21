@@ -3,6 +3,7 @@ const dynamodb = new DocClient();
 const middy = require("@middy/core");
 const ssm = require("@middy/ssm");
 const Log = require("@dazn/lambda-powertools-logger");
+const wrap = require('@dazn/lambda-powertools-pattern-basic')
 
 const { serviceName, stage } = process.env;
 const tableName = process.env.restaurants_table;
@@ -24,7 +25,7 @@ const findRestaurantsByTheme = async (theme, count) => {
     return resp.Items;
 };
 
-module.exports.handler = middy(async (event, context) => {
+module.exports.handler = wrap(async (event, context) => {
     const req = JSON.parse(event.body);
     const theme = req.theme;
     const restaurants = await findRestaurantsByTheme(theme, context.config.defaultResults);
