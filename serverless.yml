@@ -12,6 +12,9 @@ custom:
       - CognitoUserPoolServerClientId
     output:
       file: ./.env-outputs
+  logLevel:
+    prod: INFO
+    default: DEBUG
 
 provider:
   name: aws
@@ -27,6 +30,7 @@ provider:
           - .execute-api.${aws:region}.amazonaws.com/${sls:stage}
     serviceName: ${self:service}
     stage: ${sls:stage}
+    LOG_LEVEL: ${self:custom.logLevel.${sls:stage}, self:custom.logLevel.default}
 
 plugins:
   - serverless-export-env

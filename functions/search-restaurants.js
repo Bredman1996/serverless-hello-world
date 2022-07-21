@@ -2,11 +2,16 @@ const DocClient = require('aws-sdk/clients/dynamodb').DocumentClient;
 const dynamodb = new DocClient();
 const middy = require("@middy/core");
 const ssm = require("@middy/ssm");
+const Log = require("@dazn/lambda-powertools-logger");
 
 const { serviceName, stage } = process.env;
 const tableName = process.env.restaurants_table;
 
 const findRestaurantsByTheme = async (theme, count) => {
+    Log.debug('searching restaurants by theme', {
+        tableName,
+        count
+    });
     const req = {
         TableName: tableName,
         Limit: count,
@@ -15,6 +20,7 @@ const findRestaurantsByTheme = async (theme, count) => {
     };
 
     const resp = await dynamodb.scan(req).promise();
+    Log.debug('found restaurants', {count: resp.Items.length});
     return resp.Items;
 };
 

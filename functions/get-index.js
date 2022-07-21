@@ -3,6 +3,7 @@ const Mustache = require("mustache");
 const http = require("axios");
 const aws4 = require("aws4");
 const URL = require("url");
+const Log = require('@dazn/lambda-powertools-logger');
 
 const restaurantsApiRoot = process.env.restaurants_api;
 const ordersApiRoot = process.env.orders_api;
@@ -23,7 +24,7 @@ const days = [
 const template = fs.readFileSync('static/index.html', 'utf-8');
 
 const getRestaurants = async () => {
-    console.log(`loading restaurants from ${restaurantsApiRoot}...`);
+    Log.debug(`getting restaurants...`, { url: restaurantsApiRoot });
     
     const url = URL.parse(restaurantsApiRoot);
     const opts = {
@@ -36,7 +37,9 @@ const getRestaurants = async () => {
     const httpReq = await http.get(restaurantsApiRoot, {
         headers: opts.headers
     });
-    return httpReq.data;
+    let restaurants = httpReq.data;
+    Log.debug('got restaurants', { count: restaurants.length });
+    return restaurants;
 }
 
 module.exports.handler = async (event, context) => {

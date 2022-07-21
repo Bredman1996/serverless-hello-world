@@ -2,20 +2,28 @@ const EventBridge = require('aws-sdk/clients/eventbridge');
 const eventBridge = new EventBridge();
 const SNS = require('aws-sdk/clients/sns');
 const sns = new SNS();
+const Log = require('@dazn/lambda-powertools-logger');
 
 const busName = process.env.bus_name;
 const topicArn = process.env.restaurant_notification_topic;
 
 module.exports.handler = async (event) => {
     const order = event.detail;
+    const { restaurantName, orderId } = order;
+
+    Log.debug('notifying restaurant of order...', {
+        restaurant: restaurantName,
+        orderId: orderId,
+        topic: topicArn
+    });
+
     const snsReq = {
         Message: JSON.stringify(order),
         TopicArn: topicArn
     };
     await sns.publish(snsReq).promise();
 
-    const { restaurantName, orderId } = order;
-    console.log(`notified restaurant [${restaurantName}] of order [${orderId}]`);
+    Log.debug(`notified restaurant`, {restaurantName, orderId});
 
     await eventBridge.putEvents({
         Entries: [{
@@ -25,4 +33,9 @@ module.exports.handler = async (event) => {
             EventBusName: busName
         }]
     }).promise();
+
+    Log.debug('published event into EventBridge', {
+        eventType: 'restaurant_notified',
+        busName
+    });
 };
