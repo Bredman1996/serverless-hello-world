@@ -1,10 +1,11 @@
 const docClient = require("aws-sdk/clients/dynamodb").DocumentClient;
 const dynamoDb = new docClient();
-const middy = require("@middy/core");
+const XRay = require('aws-xray-sdk-core');
+XRay.captureAWSClient(dynamoDb.service);
 const ssm = require("@middy/ssm");
 const Log = require('@dazn/lambda-powertools-logger');
-const { ResourceGroupsTaggingAPI } = require("aws-sdk");
-const wrap = require('@dazn/lambda-powertools-pattern-basic')
+const wrap = require('@dazn/lambda-powertools-pattern-basic');
+
 
 const { serviceName, stage } = process.env;
 const tableName = process.env.restaurants_table;

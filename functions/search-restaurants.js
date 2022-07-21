@@ -1,6 +1,7 @@
 const DocClient = require('aws-sdk/clients/dynamodb').DocumentClient;
 const dynamodb = new DocClient();
-const middy = require("@middy/core");
+const XRay = require('aws-xray-sdk-core');
+XRay.captureAWSClient(dynamodb.service);
 const ssm = require("@middy/ssm");
 const Log = require("@dazn/lambda-powertools-logger");
 const wrap = require('@dazn/lambda-powertools-pattern-basic')
