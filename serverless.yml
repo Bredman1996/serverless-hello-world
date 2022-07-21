@@ -17,6 +17,9 @@ custom:
     default: INFO
   serverless-iam-roles-per-function:
     defaultInherit: true
+  lumigo:
+    token: t_03cab2a05ce542b087431
+    nodePackageManager: npm
 
 provider:
   name: aws
@@ -52,6 +55,7 @@ plugins:
   - serverless-export-env
   - serverless-export-outputs
   - serverless-iam-roles-per-function
+  - serverless-lumigo
 
 functions:
   get-index:
